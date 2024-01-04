@@ -23,18 +23,94 @@
 */
 
 #include <ESP32Time.h>
+#include "numbersBinaryWLabels.h"
+#include <FastLED.h>
+#define WIDTH 36
+#define HEIGHT 16
+#define LED_PIN 2
+int location;
+int level;
+int letter;
+
+const int NUM_LEDS = WIDTH * HEIGHT;
+CRGB leds[NUM_LEDS];
+
+
+
+
+
+void ledSet(int j, int level){
+  leds[j].r = level;
+  leds[j].g = level;
+  leds[j].b = 0;
+}
+
+
+
+void displayText(String message){
+
+  int arraySize = message.length() * 7;
+  int toDisplay[arraySize][12];
+  
+  for(int y = 0; y < 12; y++){                        //creates array to be displayed
+    for(int x = 0; x < arraySize; x++){
+      toDisplay[x][y] = num[int(message[(x/7)])-32][(x%7)+(y*7)];
+    } 
+  }
+
+  
+
+  if(message.length() <= 5){                          //If no scrolling is nessesary, displays text
+    for(int y = 0; y < 12; y++){
+      for(int x = 0; x < (arraySize); x++){
+        ledSet(((y+2)*WIDTH)+x, 255 * toDisplay[x][y]);   
+     }}
+     FastLED.show();
+  }
+
+  else{                                               //If scrolling is nessesary, displays text
+    for(int scroll = 0; scroll < (arraySize-WIDTH); scroll++){
+    for(int y = 0; y < 12; y++){
+      for(int x = 0; x < WIDTH; x++){
+        ledSet(((y+2)*WIDTH)+x, 255 * toDisplay[x + scroll][y]);
+     }}
+     FastLED.show();
+     delay(250);
+    }
+    delay(1250);
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //ESP32Time rtc;
+
 ESP32Time rtc(3600);  // offset in seconds GMT+1
 
 void setup() {
+  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds,NUM_LEDS);
   Serial.begin(115200);
   pinMode(25, INPUT);
   pinMode(33, INPUT);
   pinMode(32, INPUT);
+  String test;
   int hour = 0;
   int minutes = 0;
-  String test;
 
   while(digitalRead(32)==LOW){
     if(digitalRead(33)==HIGH){
@@ -45,8 +121,8 @@ void setup() {
       minutes++;
       delay(250);
     }
-   test = "Hour: "+ String((hour + 1)%24) + "\t Minutes: " + String(minutes % 60);
-   Serial.println(test);
+   test = String((hour + 1)%24) + ":" + String(minutes % 60);
+   displayText(test);
 
     
   }
@@ -60,31 +136,14 @@ void setup() {
 }
 
 void loop() {
-//  Serial.println(rtc.getTime());          //  (String) 15:24:38
-//  Serial.println(rtc.getDate());          //  (String) Sun, Jan 17 2021
-//  Serial.println(rtc.getDate(true));      //  (String) Sunday, January 17 2021
-//  Serial.println(rtc.getDateTime());      //  (String) Sun, Jan 17 2021 15:24:38
-//  Serial.println(rtc.getDateTime(true));  //  (String) Sunday, January 17 2021 15:24:38
-//  Serial.println(rtc.getTimeDate());      //  (String) 15:24:38 Sun, Jan 17 2021
-//  Serial.println(rtc.getTimeDate(true));  //  (String) 15:24:38 Sunday, January 17 2021
-//
-//  Serial.println(rtc.getMicros());        //  (long)    723546
-//  Serial.println(rtc.getMillis());        //  (long)    723
-//  Serial.println(rtc.getEpoch());         //  (long)    1609459200
-//  Serial.println(rtc.getSecond());        //  (int)     38    (0-59)
-//  Serial.println(rtc.getMinute());        //  (int)     24    (0-59)
-//  Serial.println(rtc.getHour());          //  (int)     3     (0-12)
-//  Serial.println(rtc.getHour(true));      //  (int)     15    (0-23)
-//  Serial.println(rtc.getAmPm());          //  (String)  pm
-//  Serial.println(rtc.getAmPm(true));      //  (String)  PM
-//  Serial.println(rtc.getDay());           //  (int)     17    (1-31)
-//  Serial.println(rtc.getDayofWeek());     //  (int)     0     (0-6)
-//  Serial.println(rtc.getDayofYear());     //  (int)     16    (0-365)
-//  Serial.println(rtc.getMonth());         //  (int)     0     (0-11)
-//  Serial.println(rtc.getYear());          //  (int)     2021
+  char test[6];
+  sprintf(test, "%02d:%02d",rtc.getHour(), rtc.getMinute());
 
-//  Serial.println(rtc.getLocalEpoch());         //  (long)    1609459200 epoch without offset
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));   // (String) returns time with specified format 
+
+  
+  //test = String(rtc.getHour()) + ":" + String(rtc.getMinute());
+  displayText(String(test));
+  //Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));   // (String) returns time with specified format 
   // formating options  http://www.cplusplus.com/reference/ctime/strftime/
 
 
