@@ -121,14 +121,14 @@ void setup() {
       minutes++;
       delay(250);
     }
-   test = String((hour + 1)%24) + ":" + String(minutes % 60);
+   test = String((hour + 1)%12) + ":" + String(minutes % 60);
    displayText(test);
 
     
   }
   
 
-  rtc.setTime(0, (minutes%60), (hour%24), 17, 1, 2021);  // 17th Jan 2021 15:24:30
+  rtc.setTime(0, (minutes%60), (hour%12), 17, 1, 2021);  // 17th Jan 2021 15:24:30
   //rtc.setTime(1609459200);  // 1st Jan 2021 00:00:00
   //rtc.offset = 7200; // change offset value
 
