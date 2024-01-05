@@ -42,12 +42,16 @@ CRGB leds[NUM_LEDS];
 void ledSet(int j, int level){
   leds[j].r = level;
   leds[j].g = level;
-  leds[j].b = 0;
+  leds[j].b = level;
 }
 
 
 
 void displayText(String message){
+  if(message.length() < 5)
+  for(int i = 0; i < (message.length() - 5); i++){
+    message = message + " ";
+  }
 
   int arraySize = message.length() * 7;
   int toDisplay[arraySize][12];
@@ -121,7 +125,7 @@ void setup() {
       minutes++;
       delay(250);
     }
-   test = String((hour + 1)%12) + ":" + String(minutes % 60);
+   test = String((hour%12)+1) + ":" + String(minutes % 60);
    displayText(test);
 
     
